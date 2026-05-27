@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Platform, StyleSheet, View, Text, Button, Modal, TextInput, Alert } from 'react-native';
-import { CalendarList, DateObject } from 'react-native-calendars';
+import { CalendarList } from 'react-native-calendars';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
+
+interface DateObject {
+  dateString: string;
+}
 
 // Keep existing themed components to preserve app styling
 import ParallaxScrollView from '@/components/parallax-scroll-view';
@@ -27,8 +31,7 @@ export default function TabTwoScreen() {
       clientId: CLIENT_ID,
       scopes: SCOPES,
       responseType: AuthSession.ResponseType.Token,
-      // For native apps use useProxy / redirect URIs configured in Cloud Console
-      redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+      redirectUri: AuthSession.makeRedirectUri(),
     },
     { authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' }
   );
@@ -59,7 +62,7 @@ export default function TabTwoScreen() {
 
   async function signInWithGoogle() {
     try {
-      await promptAsync({ useProxy: true });
+      await promptAsync();
     } catch (err) {
       Alert.alert('Auth error', String(err));
     }
