@@ -20,7 +20,7 @@ import { Fonts } from '@/constants/theme';
 // and configure Google OAuth client IDs for Expo (Android/iOS/web) in your Google Cloud console.
 
 // Replace these with your OAuth client IDs / env vars. Do NOT commit secrets.
-const CLIENT_ID = process.env.EXPO_GOOGLE_CLIENT_ID || '<GOOGLE_CLIENT_ID_FOR_EXPO>'; // e.g. for web or expo
+const CLIENT_ID = process.env.EXPO_GOOGLE_CLIENT_ID || '742911455880-f1tmfj8gi0hepinn1fkkg1jbbdqr7u0i.apps.googleusercontent.com'; // e.g. for web or expo
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 WebBrowser.maybeCompleteAuthSession();
