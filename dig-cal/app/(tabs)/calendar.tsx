@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Platform, StyleSheet, View, Text, Button, Modal, TextInput, Alert } from 'react-native';
+import { Platform, StyleSheet, View, Text, Button, Modal, TextInput, Alert, useColorScheme } from 'react-native';
 import { CalendarList } from 'react-native-calendars';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
@@ -15,12 +15,8 @@ import { ThemedView } from '@/components/themed-view';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts } from '@/constants/theme';
 
-// NOTE: Install packages:
-// npm install react-native-calendars expo-auth-session
-// and configure Google OAuth client IDs for Expo (Android/iOS/web) in your Google Cloud console.
-
-// Replace these with your OAuth client IDs / env vars. Do NOT commit secrets.
-const CLIENT_ID = process.env.EXPO_GOOGLE_CLIENT_ID || '742911455880-f1tmfj8gi0hepinn1fkkg1jbbdqr7u0i.apps.googleusercontent.com'; // e.g. for web or expo
+// Don't commit secrets!
+const CLIENT_ID = process.env.EXPO_GOOGLE_CLIENT_ID || '742911455880-f1tmfj8gi0hepinn1fkkg1jbbdqr7u0i.apps.googleusercontent.com'; 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 WebBrowser.maybeCompleteAuthSession();
@@ -32,6 +28,7 @@ export default function TabTwoScreen() {
       scopes: SCOPES,
       responseType: AuthSession.ResponseType.Token,
       redirectUri: AuthSession.makeRedirectUri(),
+      usePKCE: false,
     },
     { authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' }
   );
@@ -152,11 +149,16 @@ export default function TabTwoScreen() {
         futureScrollRange={12}
         onDayPress={(day: DateObject) => {
           setSelectedDate(day.dateString);
-          setModalVisible(true);
         }}
         markedDates={markings}
         style={{ marginBottom: 20 }}
       />
+
+      {selectedDate && (
+        <View style={{ paddingHorizontal: 12, marginBottom: 12 }}>
+          <Button title={`Add event for ${selectedDate}`} onPress={() => setModalVisible(true)} />
+        </View>
+      )}
 
       <View style={{ padding: 12 }}>
         {selectedDate && (
@@ -173,13 +175,15 @@ export default function TabTwoScreen() {
         ))}
       </View>
 
-      <Modal visible={modalVisible} animationType="slide" onRequestClose={() => setModalVisible(false)}>
-        <View style={{ flex: 1, padding: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 8 }}>Create event on {selectedDate}</Text>
-          <TextInput placeholder="Event title" value={eventTitle} onChangeText={setEventTitle} style={{ borderWidth: 1, borderColor: '#ccc', padding: 8, marginBottom: 12 }} />
-          <Button title="Create (Google Calendar)" onPress={() => selectedDate && createEventOnGoogle(selectedDate, eventTitle || 'New event')} />
-          <View style={{ height: 12 }} />
-          <Button title="Close" onPress={() => setModalVisible(false)} />
+      <Modal visible={modalVisible} animationType="fade" transparent onRequestClose={() => setModalVisible(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
+          <View style={{ backgroundColor: theme.backgroundColor, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, paddingBottom: 40 }}>
+            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16, color: theme.textColor }}>Create event on {selectedDate}</Text>
+            <TextInput placeholder="Event title" placeholderTextColor={isDark ? '#888' : '#999'} value={eventTitle} onChangeText={setEventTitle} style={{ borderWidth: 1, borderColor: theme.borderColor, padding: 10, marginBottom: 16, borderRadius: 8, color: theme.textColor, backgroundColor: isDark ? '#222' : '#f9f9f9' }} />
+            <Button title="Create (Google Calendar)" onPress={() => selectedDate && createEventOnGoogle(selectedDate, eventTitle || 'New event')} color={theme.buttonColor} />
+            <View style={{ height: 12 }} />
+            <Button title="Close" onPress={() => setModalVisible(false)} color={isDark ? '#888' : '#666'} />
+          </View>
         </View>
       </Modal>
 
