@@ -3,6 +3,7 @@ import { Platform, StyleSheet, View, Text, Button, Modal, TextInput, Alert, useC
 import { CalendarList } from 'react-native-calendars';
 import * as WebBrowser from 'expo-web-browser';
 import * as AuthSession from 'expo-auth-session';
+import { Colors } from '@/constants/theme';
 
 interface DateObject {
   dateString: string;
@@ -33,6 +34,8 @@ export default function TabTwoScreen() {
     { authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth' }
   );
 
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme === 'dark' ? 'dark' : 'light'];
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
@@ -130,15 +133,15 @@ export default function TabTwoScreen() {
 
       {!accessToken ? (
         <View style={{ margin: 12 }}>
-          <Text style={{ marginBottom: 8 }}>Sign in to sync with Google Calendar</Text>
+          <Text style={{ marginBottom: 8, color: colors.text }}>Sign in to sync with Google Calendar</Text>
           <Button title="Sign in with Google" onPress={signInWithGoogle} disabled={!request} />
-          <Text style={{ marginTop: 8, color: '#666' }}>
+          <Text style={{ marginTop: 8, color: colors.text }}>
             After signing in, events from your primary Google Calendar will be fetched and displayed.
           </Text>
         </View>
       ) : (
         <View style={{ margin: 8 }}>
-          <Text style={{ marginBottom: 6 }}>Signed in. Tap a date to add an event.</Text>
+          <Text style={{ marginBottom: 6, color: colors.text }}>Signed in. Tap a date to add an event.</Text>
         </View>
       )}
 
@@ -162,27 +165,27 @@ export default function TabTwoScreen() {
 
       <View style={{ padding: 12 }}>
         {selectedDate && (
-          <Text style={{ fontWeight: '600' }}>Events on {selectedDate}:</Text>
+          <Text style={{ fontWeight: '600', color: colors.text }}>Events on {selectedDate}:</Text>
         )}
         {(selectedDate && (eventsByDate[selectedDate] || []).length === 0) && (
-          <Text style={{ color: '#666' }}>No events</Text>
+          <Text style={{ color: colors.text }}>No events</Text>
         )}
         {selectedDate && (eventsByDate[selectedDate] || []).map((ev) => (
           <View key={ev.id} style={{ paddingVertical: 8 }}>
-            <Text style={{ fontWeight: '500' }}>{ev.summary}</Text>
-            <Text style={{ color: '#666' }}>{ev.start?.date || ev.start?.dateTime}</Text>
+            <Text style={{ fontWeight: '500', color: colors.text }}>{ev.summary}</Text>
+            <Text style={{ color: colors.text }}>{ev.start?.date || ev.start?.dateTime}</Text>
           </View>
         ))}
       </View>
 
       <Modal visible={modalVisible} animationType="fade" transparent onRequestClose={() => setModalVisible(false)}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}>
-          <View style={{ backgroundColor: theme.backgroundColor, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, paddingBottom: 40 }}>
-            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16, color: theme.textColor }}>Create event on {selectedDate}</Text>
-            <TextInput placeholder="Event title" placeholderTextColor={isDark ? '#888' : '#999'} value={eventTitle} onChangeText={setEventTitle} style={{ borderWidth: 1, borderColor: theme.borderColor, padding: 10, marginBottom: 16, borderRadius: 8, color: theme.textColor, backgroundColor: isDark ? '#222' : '#f9f9f9' }} />
-            <Button title="Create (Google Calendar)" onPress={() => selectedDate && createEventOnGoogle(selectedDate, eventTitle || 'New event')} color={theme.buttonColor} />
+          <View style={{ backgroundColor: colors.background, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, paddingBottom: 40 }}>
+            <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16, color: colors.text }}>Create event on {selectedDate}</Text>
+            <TextInput placeholder="Event title" placeholderTextColor={colors.secondaryText} value={eventTitle} onChangeText={setEventTitle} style={{ borderWidth: 1, borderColor: colors.border, padding: 10, marginBottom: 16, borderRadius: 8, color: colors.text, backgroundColor: colors.background }} />
+            <Button title="Create (Google Calendar)" onPress={() => selectedDate && createEventOnGoogle(selectedDate, eventTitle || 'New event')} color={colors.button} />
             <View style={{ height: 12 }} />
-            <Button title="Close" onPress={() => setModalVisible(false)} color={isDark ? '#888' : '#666'} />
+            <Button title="Close" onPress={() => setModalVisible(false)} color={colors.secondaryText} />
           </View>
         </View>
       </Modal>
