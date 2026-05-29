@@ -40,6 +40,10 @@ export default function TabTwoScreen() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [eventTitle, setEventTitle] = useState('');
+  const [eventTime, setEventTime] = useState('');
+  const [eventEndTime, setEventEndTime] = useState('');
+  const [startPeriod, setStartPeriod] = useState('AM');
+  const [endPeriod, setEndPeriod] = useState('AM');
   const [eventsByDate, setEventsByDate] = useState<Record<string, any[]>>({});
 
   useEffect(() => {
@@ -59,6 +63,14 @@ export default function TabTwoScreen() {
     if (selectedDate) marks[selectedDate] = { ...(marks[selectedDate] || {}), selected: true };
     return marks;
   }, [eventsByDate, selectedDate]);
+
+  function convert12to24(time: string, period: string): string {
+    const [hours, minutes] = time.split(':');
+    let hour = parseInt(hours);
+    if(period === 'AM' && hour === 12) hour = 0;
+    if(period === 'PM' && hour !== 12) hour += 12;
+    return `${String(hour).padStart(2, '0')}:${minutes}`;
+  }
 
   async function signInWithGoogle() {
     try {
@@ -88,7 +100,7 @@ export default function TabTwoScreen() {
     }
   }
 
-  async function createEventOnGoogle(date: string, title: string) {
+  async function createEventOnGoogle(date: string, title: string, startTime: string, endTime: string) {
     if (!accessToken) {
       Alert.alert('Not signed in', 'Please sign in with Google first');
       return;
@@ -96,8 +108,8 @@ export default function TabTwoScreen() {
     try {
       const event = {
         summary: title,
-        start: { date },
-        end: { date },
+        start: { dateTime: `${date}T${startTime}:00`, timeZone: 'UTC' },
+        end: { dateTime: `${date}T${endTime}:00`, timeZone: 'UTC' },
       };
       const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
         method: 'POST',
@@ -183,7 +195,19 @@ export default function TabTwoScreen() {
           <View style={{ backgroundColor: colors.background, borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 20, paddingBottom: 40 }}>
             <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 16, color: colors.text }}>Create event on {selectedDate}</Text>
             <TextInput placeholder="Event title" placeholderTextColor={colors.secondaryText} value={eventTitle} onChangeText={setEventTitle} style={{ borderWidth: 1, borderColor: colors.border, padding: 10, marginBottom: 16, borderRadius: 8, color: colors.text, backgroundColor: colors.background }} />
-            <Button title="Create (Google Calendar)" onPress={() => selectedDate && createEventOnGoogle(selectedDate, eventTitle || 'New event')} color={colors.button} />
+            
+              <TextInput placeholder="Start time (HH:MM)" value={eventTime} onChangeText={setEventTime} style={{ borderWidth: 1, borderColor: colors.border, padding: 10, borderRadius: 8, marginBottom: 12, color: colors.text,}}/>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                <Button title="AM" color={startPeriod === 'AM' ? colors.button : colors.border} onPress={() => setStartPeriod('AM')}/>
+                <Button title="PM" color={startPeriod === 'PM' ? colors.button : colors.border} onPress={() => setStartPeriod('PM')}/>
+              </View>
+              <TextInput placeholder="End time (HH:MM)" value={eventEndTime} onChangeText={setEventEndTime} style={{ borderWidth: 1, borderColor: colors.border, padding: 10, borderRadius: 8, marginBottom: 12, color: colors.text,}}/>
+              <View style={{ flexDirection: 'row', gap: 8, marginBottom: 16 }}>
+                <Button title="AM" color={endPeriod === 'AM' ? colors.button : colors.border} onPress={() => setEndPeriod('AM')}/>
+                <Button title="PM" color={endPeriod === 'PM' ? colors.button : colors.border} onPress={() => setEndPeriod('PM')}/>
+              </View>
+
+            <Button title="Create (Google Calendar)" onPress={() => {const start24 = convert12to24(eventTime, startPeriod); const end24 = convert12to24(eventEndTime, endPeriod); selectedDate && createEventOnGoogle(selectedDate, eventTitle || 'New event', start24, end24)}} color={colors.button} />
             <View style={{ height: 12 }} />
             <Button title="Close" onPress={() => setModalVisible(false)} color={colors.secondaryText} />
           </View>
