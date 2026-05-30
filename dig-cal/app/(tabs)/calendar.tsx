@@ -72,6 +72,21 @@ export default function TabTwoScreen() {
     return `${String(hour).padStart(2, '0')}:${minutes}`;
   }
 
+  function formatEventTime(dateTimeString: string): string {
+    if(!dateTimeString) return '';
+
+    const time = dateTimeString.split('T')[1]?.split(':').slice(0,2).join(':');
+    if(!time) return '';
+
+    const [hours, minutes] = time.split(':');
+    let hour = parseInt(hours);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    if (hour > 12) hour -= 12;
+    if (hour === 0)  hour =12;
+
+    return `${String(hour).padStart(2,'0')}:${minutes} ${period}`;
+  }
+
   async function signInWithGoogle() {
     try {
       await promptAsync();
@@ -185,7 +200,7 @@ export default function TabTwoScreen() {
         {selectedDate && (eventsByDate[selectedDate] || []).map((ev) => (
           <View key={ev.id} style={{ paddingVertical: 8 }}>
             <Text style={{ fontWeight: '500', color: colors.text }}>{ev.summary}</Text>
-            <Text style={{ color: colors.text }}>{ev.start?.date || ev.start?.dateTime}</Text>
+            <Text style={{ color: colors.secondaryText }}>{formatEventTime(ev.start?.dateTime || '')}</Text>
           </View>
         ))}
       </View>
