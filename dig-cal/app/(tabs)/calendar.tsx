@@ -17,7 +17,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Fonts } from '@/constants/theme';
 
 // Don't commit secrets!
-const CLIENT_ID = process.env.EXPO_GOOGLE_CLIENT_ID || '742911455880-f1tmfj8gi0hepinn1fkkg1jbbdqr7u0i.apps.googleusercontent.com'; 
+const CLIENT_ID = process.env.EXPO_GOOGLE_CLIENT_ID || '742911455880-1ph79vsdt4540esrcm434hopr27h7l4p.apps.googleusercontent.com'; 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
 WebBrowser.maybeCompleteAuthSession();
@@ -70,6 +70,21 @@ export default function TabTwoScreen() {
     if(period === 'AM' && hour === 12) hour = 0;
     if(period === 'PM' && hour !== 12) hour += 12;
     return `${String(hour).padStart(2, '0')}:${minutes}`;
+  }
+
+  function formatEventTime(dateTimeString: string): string {
+    if(!dateTimeString) return '';
+
+    const time = dateTimeString.split('T')[1]?.split(':').slice(0,2).join(':');
+    if(!time) return '';
+
+    const [hours, minutes] = time.split(':');
+    let hour = parseInt(hours);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    if (hour > 12) hour -= 12;
+    if (hour === 0)  hour =12;
+
+    return `${String(hour).padStart(2,'0')}:${minutes} ${period}`;
   }
 
   async function signInWithGoogle() {
