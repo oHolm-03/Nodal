@@ -200,7 +200,7 @@ export default function TabTwoScreen() {
         {selectedDate && (eventsByDate[selectedDate] || []).map((ev) => (
           <View key={ev.id} style={{ paddingVertical: 8 }}>
             <Text style={{ fontWeight: '500', color: colors.text }}>{ev.summary}</Text>
-            <Text style={{ color: colors.text }}>{ev.start?.date || ev.start?.dateTime}</Text>
+            <Text style={{ color: colors.secondaryText }}>{formatEventTime(ev.start?.dateTime || '')}</Text>
           </View>
         ))}
       </View>
